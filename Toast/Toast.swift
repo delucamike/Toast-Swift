@@ -106,9 +106,9 @@ public extension UIView {
      @param completion The completion closure, executed after the toast view disappears.
             didTap will be `true` if the toast view was dismissed from a tap.
      */
-    func makeToast(_ message: String?, duration: TimeInterval = ToastManager.shared.duration, position: ToastPosition = ToastManager.shared.position, title: String? = nil, image: UIImage? = nil, style: ToastStyle = ToastManager.shared.style, completion: ((_ didTap: Bool) -> Void)? = nil) {
+    func makeToast(_ message: String?, _ chips: String?, duration: TimeInterval = ToastManager.shared.duration, position: ToastPosition = ToastManager.shared.position, title: String? = nil, image: UIImage? = nil, style: ToastStyle = ToastManager.shared.style, completion: ((_ didTap: Bool) -> Void)? = nil) {
         do {
-            let toast = try toastViewForMessage(message, title: title, image: image, style: style)
+            let toast = try toastViewForMessage(message, chips, title: title, image: image, style: style)
             showToast(toast, duration: duration, position: position, completion: completion)
         } catch ToastError.missingParameters {
             print("Error: message, title, and image are all nil")
@@ -127,9 +127,9 @@ public extension UIView {
      @param completion The completion closure, executed after the toast view disappears.
             didTap will be `true` if the toast view was dismissed from a tap.
      */
-    func makeToast(_ message: String?, duration: TimeInterval = ToastManager.shared.duration, point: CGPoint, title: String?, image: UIImage?, style: ToastStyle = ToastManager.shared.style, completion: ((_ didTap: Bool) -> Void)?) {
+    func makeToast(_ message: String?, _ chips: String?, duration: TimeInterval = ToastManager.shared.duration, point: CGPoint, title: String?, image: UIImage?, style: ToastStyle = ToastManager.shared.style, completion: ((_ didTap: Bool) -> Void)?) {
         do {
-            let toast = try toastViewForMessage(message, title: title, image: image, style: style)
+            let toast = try toastViewForMessage(message, chips, title: title, image: image, style: style)
             showToast(toast, duration: duration, point: point, completion: completion)
         } catch ToastError.missingParameters {
             print("Error: message, title, and image cannot all be nil")
@@ -411,15 +411,18 @@ public extension UIView {
      @throws `ToastError.missingParameters` when message, title, and image are all nil
      @return The newly created toast view
     */
-    func toastViewForMessage(_ message: String?, title: String?, image: UIImage?, style: ToastStyle) throws -> UIView {
+    func toastViewForMessage(_ message: String?, _ chips: String?, title: String?, image: UIImage?, style: ToastStyle) throws -> UIView {
         // sanity
         guard message != nil || title != nil || image != nil else {
             throw ToastError.missingParameters
         }
         
         var messageLabel: UILabel?
+        var chipLabel: UILabel?
         var titleLabel: UILabel?
         var imageView: UIImageView?
+        var coinView: UIImageView?
+        let coin = UIImage(named: "coin.png")
         
         let wrapperView = UIView()
         wrapperView.backgroundColor = style.backgroundColor
@@ -489,7 +492,7 @@ public extension UIView {
         if let titleLabel = titleLabel {
             titleRect.origin.x = imageRect.origin.x + imageRect.size.width + style.horizontalPadding
             titleRect.origin.y = style.verticalPadding
-            titleRect.size.width = titleLabel.bounds.size.width
+            titleRect.size.width = titleLabel.bounds.size.width + style.horizontalPadding
             titleRect.size.height = titleLabel.bounds.size.height
         }
         
@@ -497,7 +500,7 @@ public extension UIView {
         
         if let messageLabel = messageLabel {
             messageRect.origin.x = imageRect.origin.x + imageRect.size.width + style.horizontalPadding
-            messageRect.origin.y = titleRect.origin.y + titleRect.size.height + 2
+            messageRect.origin.y = titleRect.origin.y + titleRect.size.height + (style.horizontalPadding / 5)
             messageRect.size.width = messageLabel.bounds.size.width
             messageRect.size.height = messageLabel.bounds.size.height
         }
@@ -509,6 +512,24 @@ public extension UIView {
         
         wrapperView.frame = CGRect(x: 0.0, y: 0.0, width: wrapperWidth, height: wrapperHeight)
         
+        if let coin = coin {
+            coinView = UIImageView(image: coin)
+            coinView?.contentMode = .scaleAspectFit
+            coinView?.frame = CGRect(x: imageRect.origin.x + imageRect.size.width + style.horizontalPadding + (titleLabel?.bounds.size.width)! - (messageLabel?.bounds.size.height)!, y: titleRect.origin.y + titleRect.size.height + 2, width: (messageLabel?.bounds.size.height)!, height: (messageLabel?.bounds.size.height)!)
+        }
+        
+        if let chips = chips {
+            chipLabel = UILabel()
+            chipLabel?.text = chips
+            chipLabel?.numberOfLines = style.messageNumberOfLines
+            chipLabel?.font = style.chipFont
+            chipLabel?.textAlignment = .right
+            chipLabel?.lineBreakMode = .byTruncatingTail;
+            chipLabel?.textColor = style.messageColor
+            chipLabel?.backgroundColor = UIColor.clear
+            chipLabel?.frame = CGRect(x: (coinView?.frame.origin.x)! - (style.horizontalPadding / 2) - (messageLabel?.bounds.size.height)! * 2, y: (coinView?.frame.origin.y)!, width: (messageLabel?.bounds.size.height)! * 2, height: (messageLabel?.bounds.size.height)!)
+        }
+
         if let titleLabel = titleLabel {
             titleRect.size.width = longerWidth
             titleLabel.frame = titleRect
@@ -523,6 +544,13 @@ public extension UIView {
         
         if let imageView = imageView {
             wrapperView.addSubview(imageView)
+        }
+        
+        if let coinView = coinView {
+            if ToastManager.shared.displayCoin == true {
+                wrapperView.addSubview(coinView)
+                wrapperView.addSubview(chipLabel!)
+            }
         }
         
         return wrapperView
@@ -611,6 +639,11 @@ public struct ToastStyle {
      The message font. Default is `.systemFont(ofSize: 16.0)`.
     */
     public var messageFont: UIFont = .systemFont(ofSize: 16.0)
+    
+    /**
+     The message font. Default is `.systemFont(ofSize: 16.0)`.
+    */
+    public var chipFont: UIFont = .systemFont(ofSize: 16.0)
     
     /**
      The title text alignment. Default is `NSTextAlignment.Left`.
@@ -734,6 +767,11 @@ public class ToastManager {
      
      */
     public var duration: TimeInterval = 3.0
+    
+    /**
+     Enable or disable a coin on the toast view. Default is `false`.
+    */
+    public var displayCoin = false
     
     /**
      Sets the default position. Used for the `makeToast` and
