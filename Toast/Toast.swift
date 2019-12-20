@@ -497,7 +497,7 @@ public extension UIView {
         
         if let messageLabel = messageLabel {
             messageRect.origin.x = imageRect.origin.x + imageRect.size.width + style.horizontalPadding
-            messageRect.origin.y = titleRect.origin.y + titleRect.size.height + style.verticalPadding
+            messageRect.origin.y = titleRect.origin.y + titleRect.size.height + style.messagePadding
             messageRect.size.width = messageLabel.bounds.size.width
             messageRect.size.height = messageLabel.bounds.size.height
         }
@@ -596,6 +596,8 @@ public struct ToastStyle {
      and `safeAreaInsets.bottom`.
     */
     public var verticalPadding: CGFloat = 10.0
+    
+    public var messagePadding: CGFloat = 10.0
     
     /**
      The corner radius. Default is 10.0.
