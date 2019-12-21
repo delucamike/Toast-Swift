@@ -473,7 +473,7 @@ public extension UIView {
             messageLabel?.text = message
             messageLabel?.numberOfLines = style.messageNumberOfLines
             messageLabel?.font = style.messageFont
-            messageLabel?.textAlignment = .right
+            messageLabel?.textAlignment = style.messageAlignment
             messageLabel?.lineBreakMode = .byTruncatingTail;
             messageLabel?.textColor = style.messageColor
             messageLabel?.backgroundColor = UIColor.clear
