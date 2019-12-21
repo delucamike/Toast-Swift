@@ -473,7 +473,7 @@ public extension UIView {
             messageLabel?.text = message
             messageLabel?.numberOfLines = style.messageNumberOfLines
             messageLabel?.font = style.messageFont
-            messageLabel?.textAlignment = style.messageAlignment
+            messageLabel?.textAlignment = .right
             messageLabel?.lineBreakMode = .byTruncatingTail;
             messageLabel?.textColor = style.messageColor
             messageLabel?.backgroundColor = UIColor.clear
@@ -499,7 +499,7 @@ public extension UIView {
         var messageRect = CGRect.zero
         
         if let messageLabel = messageLabel {
-            messageRect.origin.x = imageRect.origin.x + imageRect.size.width + style.horizontalPadding
+            messageRect.origin.x = imageRect.origin.x + imageRect.size.width
             messageRect.origin.y = titleRect.origin.y + titleRect.size.height + (style.horizontalPadding / 5)
             messageRect.size.width = messageLabel.bounds.size.width
             messageRect.size.height = messageLabel.bounds.size.height
@@ -515,7 +515,7 @@ public extension UIView {
         if let coin = coin {
             coinView = UIImageView(image: coin)
             coinView?.contentMode = .scaleAspectFit
-            coinView?.frame = CGRect(x: imageRect.origin.x + imageRect.size.width + style.horizontalPadding + (titleLabel?.bounds.size.width)! - (messageLabel?.bounds.size.height)!, y: titleRect.origin.y + titleRect.size.height + 2, width: (messageLabel?.bounds.size.height)!, height: (messageLabel?.bounds.size.height)!)
+            coinView?.frame = CGRect(x: imageRect.origin.x + imageRect.size.width + style.horizontalPadding, y: titleRect.origin.y + titleRect.size.height + 2, width: (messageLabel?.bounds.size.height)!, height: (messageLabel?.bounds.size.height)!)
         }
         
         if let chips = chips {
@@ -523,11 +523,11 @@ public extension UIView {
             chipLabel?.text = chips
             chipLabel?.numberOfLines = style.messageNumberOfLines
             chipLabel?.font = style.chipFont
-            chipLabel?.textAlignment = .right
+            chipLabel?.textAlignment = .left
             chipLabel?.lineBreakMode = .byTruncatingTail;
             chipLabel?.textColor = style.messageColor
             chipLabel?.backgroundColor = UIColor.clear
-            chipLabel?.frame = CGRect(x: (coinView?.frame.origin.x)! - (style.horizontalPadding / 2) - (messageLabel?.bounds.size.height)! * 2, y: (coinView?.frame.origin.y)!, width: (messageLabel?.bounds.size.height)! * 2, height: (messageLabel?.bounds.size.height)!)
+            chipLabel?.frame = CGRect(x: imageRect.origin.x + imageRect.size.width + style.horizontalPadding + (style.horizontalPadding / 2) + (messageLabel?.bounds.size.height)!, y: (coinView?.frame.origin.y)!, width: (messageLabel?.bounds.size.height)! * 2, height: (messageLabel?.bounds.size.height)!)
         }
 
         if let titleLabel = titleLabel {
